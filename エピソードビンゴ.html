@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>エピソードビンゴ</title>
+<style>
+:root{--bg:#fff7f3;--card:#ffffff;--ink:#3a2a2a;--sub:#8a7573;--accent:#e0607e;--accent2:#f6c453;--ok:#2e9e6a;--ng:#d94a4a;--line:#f0dcd6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241a1c;--card:#33262a;--ink:#fbeeea;--sub:#c4a9a6;--accent:#f07f9a;--accent2:#e9b93f;--ok:#4cc58c;--ng:#ef6a6a;--line:#4a3a3e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#241a1c;--card:#33262a;--ink:#fbeeea;--sub:#c4a9a6;--accent:#f07f9a;--accent2:#e9b93f;--ok:#4cc58c;--ng:#ef6a6a;--line:#4a3a3e;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+h1{font-size:22px;text-align:center;margin:8px 0 2px}
+.sub{text-align:center;color:var(--sub);font-size:13px;margin:0 0 14px}
+.status{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px}
+.badge{background:var(--accent);color:#fff;border-radius:999px;padding:4px 12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cell{aspect-ratio:1;border:2px solid var(--line);background:var(--card);border-radius:14px;font-size:30px;font-weight:700;color:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:4px}
+.cell small{font-size:11px;color:var(--sub);font-weight:500}
+.cell.done{background:var(--accent);border-color:var(--accent);color:#fff}
+.cell.done small{color:#fff}
+.cell.line{background:var(--accent2);border-color:var(--accent2);color:#3a2a2a}
+.cell.line small{color:#3a2a2a}
+.cell:active{transform:scale(.97)}
+.banner{text-align:center;font-size:20px;font-weight:800;color:var(--accent);min-height:30px;margin:12px 0}
+.reset{display:block;margin:10px auto 0;background:none;border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:8px 14px;font-size:12px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.overlay.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet .no{color:var(--accent);font-weight:800;font-size:13px}
+.sheet h2{font-size:18px;margin:4px 0 14px;line-height:1.5}
+.choice{display:block;width:100%;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;margin-bottom:8px}
+.choice.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.choice.ng{background:var(--ng);border-color:var(--ng);color:#fff;opacity:.85}
+.msg{min-height:22px;font-size:14px;margin:4px 0 8px}
+.close{width:100%;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:700}
+.cell.set{color:var(--ink);border-color:var(--accent)}
+.start{display:block;width:100%;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:700;margin-top:6px}
+.start:disabled{opacity:.4}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.numbtn{aspect-ratio:1.6;font-size:24px;font-weight:700;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px}
+.numbtn.on{border-color:var(--accent);color:var(--accent)}
+.numbtn:disabled{opacity:.25}
+.cell.set{color:var(--ink);border-color:var(--accent)}
+.start{display:block;width:100%;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:700;margin-top:6px}
+.start:disabled{opacity:.4}
+.sheet{max-height:88vh;overflow-y:auto}
+.ph{display:flex;gap:8px;margin:8px 0 12px}
+.ph button{flex:1;border-radius:10px;padding:10px;font-size:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.sec{font-size:16px;font-weight:800;margin:20px 0 8px}
+.qb{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.qb.qdone{border-color:var(--ok)}
+.qh{color:var(--accent);font-weight:800;font-size:12px}
+.qt{font-size:15px;font-weight:700;margin:2px 0 8px;line-height:1.5}
+.chs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ch{display:flex;gap:6px;align-items:center;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:8px;font-size:13px;line-height:1.3}
+.ch .n{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.ch.mine{border-color:var(--accent)}
+.ch.mine .n{background:var(--accent);color:#fff}
+.ch.on{border-color:var(--accent);background:var(--card)}
+.ch.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.ch.ng{background:var(--ng);border-color:var(--ng);color:#fff}
+.ch:disabled{opacity:.4}
+.ch.ok:disabled,.ch.ng:disabled{opacity:.9}
+.qmsg{font-size:13px;margin-top:6px}
+</style>
+</head>
+<body>
+<main>
+  <h1>💐 エピソードビンゴ 💐</h1>
+  <p class="sub" id="sub"></p>
+  <div class="status" id="status"><span id="count"></span><span class="badge" id="bingo">BINGO 0</span></div>
+  <div class="grid" id="grid"></div>
+  <div class="banner" id="banner"></div>
+  <button class="start" id="start">この配置でビンゴ開始!</button>
+  <div class="sec">📝 問題(選択肢の番号 1〜36)</div>
+  <div id="qs"></div>
+  <button class="reset" id="reset">最初からやり直す</button>
+</main>
+<div class="overlay" id="pk"><div class="sheet">
+  <div class="no">このマスに書き込む番号を選んでください</div>
+  <div class="ph"><button id="pkclear">このマスを空にする</button><button id="pkclose">閉じる</button></div>
+  <div id="pkbody"></div>
+</div></div>
+<script>
+// ▼ 問題と選択肢(4つ)を書き換えてください。正解はアプリ内に持たず、司会者が発表します
+const QUESTIONS=[
+ {tag:"出会い",q:"二人が初めて出会った場所は?",c:["大学のサークル","職場","友人の紹介","旅行先"]},
+ {tag:"初デート",q:"初デートで行った場所は?",c:["水族館","映画館","カフェ","遊園地"]},
+ {tag:"告白",q:"告白したのはどちら?",c:["新郎","新婦","同時","じゃんけんで決めた"]},
+ {tag:"プロポーズ",q:"プロポーズの場所は?",c:["夜景の見えるレストラン","自宅","旅行先の海辺","思い出の公園"]},
+ {tag:"好きな食べ物",q:"二人がよく一緒に食べる料理は?",c:["ラーメン","カレー","焼肉","お寿司"]},
+ {tag:"趣味",q:"二人の共通の趣味は?",c:["旅行","ゲーム","キャンプ","映画鑑賞"]},
+ {tag:"ケンカ",q:"初めてのケンカの原因は?",c:["待ち合わせの遅刻","連絡の返信","食べ物の好み","お金の使い方"]},
+ {tag:"ペット",q:"二人が飼っている(飼いたい)ペットは?",c:["犬","猫","うさぎ","まだいない"]},
+ {tag:"これから",q:"新婚旅行の行き先は?",c:["ハワイ","ヨーロッパ","沖縄","国内の温泉"]}
+];
+// ▲ ここまで
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const KEY="episode-bingo-v4";
+let nums=Array(9).fill(0),hit=Array(9).fill(-1),started=false,pick=-1,prevBingo=0;
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&Array.isArray(s.nums)&&s.nums.length===9&&Array.isArray(s.hit)&&s.hit.length===9){nums=s.nums.map(n=>+n||0);hit=s.hit.map(h=>Number.isInteger(h)?h:-1);started=!!s.started}}catch(e){}
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem(KEY,JSON.stringify({nums,hit,started}))}catch(e){}}
+function drawn(){return new Set(hit.map((k,i)=>k>=0?i*4+k+1:0).filter(Boolean))}
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function qBlock(i,mode){
+  const q=QUESTIONS[i],d=el("div","qb"+(mode!=="pick"&&hit[i]>=0?" qdone":""));
+  d.appendChild(el("div","qh","Q"+(i+1)+" ・ "+q.tag));
+  d.appendChild(el("div","qt",q.q));
+  const g=el("div","chs");
+  q.c.forEach((t,k)=>{
+    const n=i*4+k+1,b=el("button","ch");
+    b.appendChild(el("span","n",n));b.appendChild(el("span","",t));
+    if(mode==="pick"){
+      if(nums[pick]===n)b.classList.add("on");
+      b.disabled=nums.includes(n)&&nums[pick]!==n;
+      b.onclick=()=>{nums[pick]=n;save();$("pk").classList.remove("open");render()};
+    }else{
+      if(nums.includes(n))b.classList.add("mine");
+      if(hit[i]===k)b.classList.add("ok");
+      if(started)b.onclick=()=>announce(i,k);
+    }
+    g.appendChild(b);
+  });
+  d.appendChild(g);
+  if(mode!=="pick"&&hit[i]>=0)d.appendChild(el("div","qmsg","🎉 正解は番号 "+(i*4+hit[i]+1)+"(押し間違えたらもう一度タップで取り消し)"));
+  return d;
+}
+function announce(i,k){hit[i]=hit[i]===k?-1:k;save();render()}
+function render(){
+  const dr=drawn(),open=i=>nums[i]&&dr.has(nums[i]);
+  const ls=LINES.filter(l=>l.every(open)),inLine=new Set(ls.flat()),placed=nums.filter(Boolean).length;
+  $("grid").innerHTML="";
+  for(let i=0;i<9;i++){
+    const b=el("button","cell");
+    if(!started){
+      b.classList.toggle("set",!!nums[i]);
+      b.innerHTML=(nums[i]||"＋")+"<small>"+(nums[i]?"タップで変更":"番号を書く")+"</small>";
+      b.onclick=()=>{pick=i;openPick()};
+    }else{
+      if(open(i))b.classList.add("done");
+      if(inLine.has(i))b.classList.add("line");
+      b.innerHTML=nums[i]+"<small>"+(open(i)?"✓ 当たり!":"")+"</small>";
+    }
+    $("grid").appendChild(b);
+  }
+  $("sub").textContent=started?"司会者が発表した正解の番号を、下の問題一覧でタップしてください!":"問題を見て、正解だと思う番号(1〜36)を9つ選んで書き込もう!("+placed+" / 9)";
+  $("start").style.display=started?"none":"block";
+  $("start").disabled=placed<9;
+  $("status").style.display=started?"flex":"none";
+  $("count").textContent=nums.filter((n,i)=>open(i)).length+" / 9 マス";
+  $("bingo").textContent="BINGO "+ls.length;
+  let msg="";
+  if(started){
+    msg=ls.length>prevBingo?"🎉 BINGO! "+ls.length+"ライン達成! 🎉":(ls.length?"🎉 BINGO "+ls.length+"ライン! 🎉":"");
+    if(hit.every(h=>h>=0))msg="🎊 全問発表終了!お疲れさまでした! 🎊";
+  }
+  $("banner").textContent=msg;
+  prevBingo=ls.length;
+  $("qs").innerHTML="";
+  QUESTIONS.forEach((q,i)=>$("qs").appendChild(qBlock(i,"list")));
+}
+function openPick(){
+  $("pkbody").innerHTML="";
+  QUESTIONS.forEach((q,i)=>$("pkbody").appendChild(qBlock(i,"pick")));
+  $("pk").classList.add("open");
+}
+$("start").onclick=()=>{if(nums.every(Boolean)){started=true;prevBingo=0;save();render()}};
+$("pkclear").onclick=()=>{nums[pick]=0;save();$("pk").classList.remove("open");render()};
+$("pkclose").onclick=()=>$("pk").classList.remove("open");
+$("pk").onclick=e=>{if(e.target===$("pk"))$("pk").classList.remove("open")};
+$("reset").onclick=()=>{if(confirm("番号の配置も含めて、最初からやり直しますか?")){nums=Array(9).fill(0);hit=Array(9).fill(-1);started=false;prevBingo=0;save();render()}};
+prevBingo=0;render();
+</script>
+</body>
+</html>
